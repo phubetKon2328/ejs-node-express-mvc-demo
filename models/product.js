@@ -1,44 +1,60 @@
 const fs = require("fs");
 const path = require("path");
+const { DataTypes } = require("sequelize");
 
-module.exports = class Product {
-  constructor(productName, imgUrl, price) {
-    this.productName = productName;
-    this.price = price;
-    this.imgUrl = imgUrl;
-  }
-  readFromFile(cb) {
-    const filePath = path.join(__dirname, "..", "data", "product.json");
-    fs.readFile(filePath, "utf-8", (err, data) => {
-      const parseJson = JSON.parse(data);
-      cb(parseJson);
-    });
-  }
-  save() {
-    this.id = Math.random().toString();
-    const filePath = path.join(__dirname, "..", "data", "product.json");
-    this.readFromFile((data) => {
-      // products.push(this);
-      const updatedProducts = [...data, { ...this }];
-      // console.log("push Product", updatedProducts);
+const sequelize = require("../util/database");
 
-      fs.writeFile(filePath, JSON.stringify(updatedProducts), (err) => {
-        console.log('Error writing product file',err);
-      });
-    });
-  }
-  fetchAll(cb) {
-    this.readFromFile((data) => {
-      cb(data);
-    });
-  }
-  findById(id, cb) {
-    this.fetchAll((product) => {
-      const productId = product.find((item) => item.id === id);
-      cb(productId);
-    });
-  }
-};
+const Product = sequelize.define("Product", {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true,
+  },
+  productName: { type: DataTypes.STRING, allowNull: false },
+  price: { type: DataTypes.DOUBLE, allowNull: false },
+  imgUrl: { type: DataTypes.STRING, allowNull: false },
+});
+
+module.exports = Product;
+// module.exports = class Product {
+//   constructor(productName, imgUrl, price) {
+//     this.productName = productName;
+//     this.price = price;
+//     this.imgUrl = imgUrl;
+//   }
+//   readFromFile(cb) {
+//     const filePath = path.join(__dirname, "..", "data", "product.json");
+//     fs.readFile(filePath, "utf-8", (err, data) => {
+//       const parseJson = JSON.parse(data);
+//       cb(parseJson);
+//     });
+//   }
+//   save() {
+//     this.id = Math.random().toString();
+//     const filePath = path.join(__dirname, "..", "data", "product.json");
+//     this.readFromFile((data) => {
+//       // products.push(this);
+//       const updatedProducts = [...data, { ...this }];
+//       // console.log("push Product", updatedProducts);
+
+//       fs.writeFile(filePath, JSON.stringify(updatedProducts), (err) => {
+//         console.log("Error writing product file", err);
+//       });
+//     });
+//   }
+//   fetchAll(cb) {
+//     this.readFromFile((data) => {
+//       cb(data);
+//     });
+//   }
+//   findById(id, cb) {
+//     this.fetchAll((product) => {
+//       const productId = product.find((item) => item.id === id);
+//       cb(productId);
+//     });
+//   }
+// };
 
 const products = [
   {

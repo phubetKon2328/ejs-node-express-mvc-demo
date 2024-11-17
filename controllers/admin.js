@@ -7,22 +7,85 @@ exports.getAddProduct = (req, res, next) => {
   });
 };
 exports.getProducts = (req, res, next) => {
-  console.log("getProducts admin");
+  Product.findAll()
+    .then((data) => {
+      res.render("admin/product", {
+        products: data,
+        path: "/admin/products",
+        pageTitle: "admin product",
+      });
+    })
+    .catch((err) => {
+      console.log("Error : Unable to fetch all admin products");
+      console.error("Error : ", err);
+    });
 };
 exports.postAddProduct = (req, res, next) => {
   const { productName, imageUrl, price } = req.body;
-  const product = new Product(productName, imageUrl, price);
-  product.save();
-  
-  res.redirect("/Product");
+  Product.create({
+    productName,
+    price,
+    imgUrl: imageUrl,
+  })
+    .then((result) => {
+      console.log("Success : Create a product");
+      res.redirect("/Product");
+    })
+    .catch((err) => {
+      console.log("Error : Unable to create a product");
+      console.log("Error : ", err);
+    });
 };
 exports.getEditProduct = (req, res, next) => {
   const { edit } = req.query;
-  if (!edit) {
-    return res.redirect("/");
-  }
-  res.render("/admin/add-product", {
-    path: "/admin/add-product",
-    isEditing: edit,
-  });
+  const { productId } = req.params;
+
+  if (!edit) return res.redirect("/");
+
+  Product.findByPk(productId)
+    .then((product) => {
+      res.render("admin/edit-product", {
+        path: "/admin/add-product",
+        pageTitle: "Update Product",
+        product,
+        isEditing: edit,
+      });
+    })
+    .catch((err) => {
+      console.log("Error : Unable to find an id to edit the product");
+      console.log("Error : ", err);
+    });
+};
+
+exports.postEditProduct = (req, res, next) => {
+  const { productId, productName, imageUrl, price } = req.body;
+  Product.findByPk(productId)
+    .then((product) => {
+      product.productName = productName;
+      product.imgUrl = imageUrl;
+      product.price = price;
+      return product.save();
+    })
+    .then((result) => {
+      res.redirect("/admin/products");
+    })
+    .catch((err) => {
+      console.log("Error : Unable to update the product");
+      console.log("Error : ", err);
+    });
+};
+
+exports.postDeleteProduct = (req, res, next) => {
+  const { productId } = req.body;
+  Product.findByPk(productId)
+    .then((product) => {
+      product.destroy();
+    })
+    .then((result) => {
+      res.redirect("/admin/products");
+    })
+    .then((err) => {
+      console.log("Error : Unable to delete the product");
+      console.log("Error : ", err);
+    });
 };

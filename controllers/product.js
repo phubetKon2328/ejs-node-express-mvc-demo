@@ -3,27 +3,33 @@ const path = require("path");
 const fs = require("fs");
 
 exports.getProduct = (req, res, next) => {
-  const product = new Product();
-  product.fetchAll((data) => {
-    res.render("Product", {
-      products: data,
-      path: "/product",
-      pageTitle: "Product",
+  Product.findAll()
+    .then((data) => {
+      res.render("Product", {
+        products: data,
+        path: "/product",
+        pageTitle: "Product",
+      });
+    })
+    .catch((err) => {
+      console.log("Error : Unable to fetch all products");
+      console.error("Error : ", err);
     });
-  });
 };
 
 exports.getProductById = (req, res, next) => {
-  const product = new Product();
   const { productId } = req.params;
-  product.findById(productId, (product) => {
-    console.log(product);
-
-    res.render("ProductDetail", {
-      products: product,
-      path: "/product",
+  Product.findByPk(productId)
+    .then((data) => {
+      res.render("ProductDetail", {
+        products: data,
+        path: "/product",
+      });
+    })
+    .catch((err) => {
+      console.log("Error : Unable to find a product id");
+      console.error("Error : ", err);
     });
-  });
 };
 
 exports.postAddProduct = (req, res, next) => {
