@@ -15,7 +15,7 @@ route.get("/product/:productId", productController.getProductById);
 
 route.post("/product/:productId", productController.postAddProduct);
 
-route.get("/cart", cartController.getProduct);
+route.get("/cart", cartController.getCart);
 
 route.post("/cart", cartController.postCart);
 

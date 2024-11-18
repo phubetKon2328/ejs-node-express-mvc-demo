@@ -1,13 +1,17 @@
+const { where } = require("sequelize");
 const Product = require("../models/product");
 
 exports.getAddProduct = (req, res, next) => {
+  Product.findByPk(2).then((product) => {
+  });
   res.render("admin/edit-product", {
     path: "/add-product",
     isEditing: false,
   });
 };
 exports.getProducts = (req, res, next) => {
-  Product.findAll()
+  req.user
+    .getProducts()
     .then((data) => {
       res.render("admin/product", {
         products: data,
@@ -22,11 +26,8 @@ exports.getProducts = (req, res, next) => {
 };
 exports.postAddProduct = (req, res, next) => {
   const { productName, imageUrl, price } = req.body;
-  Product.create({
-    productName,
-    price,
-    imgUrl: imageUrl,
-  })
+  req.user
+    .createProduct({ productName, price, imgUrl: imageUrl })
     .then((result) => {
       console.log("Success : Create a product");
       res.redirect("/Product");
@@ -42,12 +43,13 @@ exports.getEditProduct = (req, res, next) => {
 
   if (!edit) return res.redirect("/");
 
-  Product.findByPk(productId)
+  req.user
+    .getProducts({ where: { id: productId } })
     .then((product) => {
       res.render("admin/edit-product", {
         path: "/admin/add-product",
         pageTitle: "Update Product",
-        product,
+        product: product[0],
         isEditing: edit,
       });
     })
