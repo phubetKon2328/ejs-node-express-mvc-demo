@@ -5,8 +5,11 @@ exports.getCart = async (req, res, next) => {
   try {
     const cart = await req.user.getCart();
     const product = await cart.getProducts();
+    let total = 0;
     const data = await Promise.all(
       product.map((item) => {
+        total += item.CartItem.quantity * item.price;
+
         return {
           productName: item.productName,
           price: item.price,
@@ -15,8 +18,10 @@ exports.getCart = async (req, res, next) => {
         };
       })
     );
+
     res.render("Cart", {
       products: data,
+      total,
       pageTitle: "Cart",
       path: "/cart",
     });
